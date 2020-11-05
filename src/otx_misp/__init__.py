@@ -268,6 +268,7 @@ def create_events(pulse_or_list, author=False, server=False, key=False, misp=Fal
             'hostnames': list(),
             'domains': list(),
             'urls': list(),
+            'uris': list(),
             'ips': list(),
             'emails': list(),
             'mutexes': list(),
@@ -346,6 +347,8 @@ def create_events(pulse_or_list, author=False, server=False, key=False, misp=Fal
     if 'references' in pulse:
         for reference in pulse['references']:
             if reference:
+                if reference[0:6] is not "http://":
+                    reference = "http://" + reference
                 log.info("\t - Adding external analysis link: {}".format(reference))
                 if misp:
                     a = pymisp.MISPAttribute()
@@ -442,13 +445,20 @@ def create_events(pulse_or_list, author=False, server=False, key=False, misp=Fal
             add_attribute(misp, event, a)                        
             result_event['attributes']['filenames'].append(ind_val)
             
-        elif ind_type == 'URI' or ind_type == 'URL':
+        elif ind_type == 'URL':
             log.info("\t - Adding URL: {}".format(ind_val))
             a.category = 'Network activity'            
             a.type = 'url'
             add_attribute(misp, event, a)                        
             result_event['attributes']['urls'].append(ind_val)
 
+        elif ind_type == 'URI':
+            log.info("\t - Adding URL: {}".format(ind_val))
+            a.category = 'Network activity'            
+            a.type = 'uri'
+            add_attribute(misp, event, a)                        
+            result_event['attributes']['uris'].append(ind_val)
+            
         elif ind_type == 'domain':
             log.info("\t - Adding domain: {}".format(ind_val))
             a.category = 'Network activity'                        
